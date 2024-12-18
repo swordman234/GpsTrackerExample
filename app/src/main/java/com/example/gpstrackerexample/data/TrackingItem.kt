@@ -1,8 +1,12 @@
 package com.example.gpstrackerexample.data
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "TrackingItem")
 data class TrackingItem (
-    val trackingId: String? = null,
-    val startTime : String? = null,
-    val latitude : String? = null,
-    val longitude : String? = null
+    @PrimaryKey(autoGenerate = true) val trackingId : Int = 0,
+    val startTime : String?,
+    val latitude : String?,
+    val longitude : String?
 )

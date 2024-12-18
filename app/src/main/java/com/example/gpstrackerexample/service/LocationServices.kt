@@ -7,13 +7,13 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.IBinder
 import android.os.Looper
-import android.util.Log
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.example.gpstrackerexample.CHANNEL_ID
 import com.example.gpstrackerexample.LOCATION_SERVICE_ID
 import com.example.gpstrackerexample.R
+import com.example.gpstrackerexample.data.TrackingItem
+import com.example.gpstrackerexample.data.TrackingItemDatabase
 import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -21,12 +21,18 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.util.Calendar
+import java.util.Locale
 
 class LocationServices : Service(){
 
     private val locationRequest by lazy {
-        LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
-            .setIntervalMillis(10000)
+        LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
             .build()
     }
 
@@ -38,14 +44,12 @@ class LocationServices : Service(){
 
             override fun onLocationResult(location: LocationResult) {
                 location.lastLocation?.let {
-                    Log.d("TAGGGGGGGG", "onLocationResult: ${it.latitude}, ${it.longitude}")
                     startServiceOfForeground(latLng = LatLng(it.latitude, it.longitude))
                 }
             }
         }
     }
     override fun onCreate() {
-        Log.d("TAGGGGGGGG", "onCreate")
         super.onCreate()
     }
 
@@ -54,7 +58,6 @@ class LocationServices : Service(){
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d("TAGGGGGGGG", "onStartCommand")
         locationUpdates()
         return START_STICKY
     }
@@ -93,6 +96,13 @@ class LocationServices : Service(){
     }
 
     private fun startServiceOfForeground(latLng: LatLng){
+        val trackingItemDatabase = TrackingItemDatabase.getDatabase(this)
+        CoroutineScope(Dispatchers.IO).launch{
+            val time = Calendar.getInstance().time
+            val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+            val current = formatter.format(time)
+            trackingItemDatabase.trackingItemDao().insert(TrackingItem(startTime = current, latitude = latLng.latitude.toString(), longitude = latLng.longitude.toString()))
+        }
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Location Updates")
