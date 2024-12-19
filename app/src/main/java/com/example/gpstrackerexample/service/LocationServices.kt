@@ -14,6 +14,7 @@ import com.example.gpstrackerexample.LOCATION_SERVICE_ID
 import com.example.gpstrackerexample.R
 import com.example.gpstrackerexample.data.TrackingItem
 import com.example.gpstrackerexample.data.TrackingItemDatabase
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -25,11 +26,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
 import java.util.Calendar
 import java.util.Locale
 
 class LocationServices : Service(){
+
+    private lateinit var client : FusedLocationProviderClient
 
     private val locationRequest by lazy {
         LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
@@ -63,11 +65,12 @@ class LocationServices : Service(){
     }
 
     override fun onDestroy() {
+        client.removeLocationUpdates(locationCallback)
         super.onDestroy()
     }
 
     private fun locationUpdates(){
-        val client = LocationServices.getFusedLocationProviderClient(this)
+        client = LocationServices.getFusedLocationProviderClient(this)
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION

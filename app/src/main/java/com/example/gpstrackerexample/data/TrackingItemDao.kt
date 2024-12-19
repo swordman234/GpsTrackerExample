@@ -14,4 +14,7 @@ interface TrackingItemDao {
     @Insert
     suspend fun insert (trackingItem: TrackingItem)
 
+    @Query("DELETE FROM TrackingItem")
+    suspend fun delete() : Int
+
 }
