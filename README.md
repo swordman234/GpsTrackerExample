@@ -14,9 +14,9 @@ using Room database.
 - Foreground service notification of latest location
 - Permissions handling for location, notifications, and foreground/background location access
 
-## Screenshots
+## Video Example
 
-*Add screenshots here of main screen/map, tracking service notification, RecyclerView history list*
+https://github.com/user-attachments/assets/2e0e2744-989d-42c4-a9dc-4844016da902
 
 ## Requirements
 
